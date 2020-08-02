@@ -34,6 +34,7 @@ struct CFRInfoStateValues {
   CFRInfoStateValues(std::vector<Action> la, double init_value)
       : legal_actions(la),
         cumulative_regrets(la.size(), init_value),
+        current_policy_unnormalized(la.size(), init_value),
         cumulative_policy(la.size(), init_value),
         current_policy(la.size(), 1.0 / la.size()) {}
   CFRInfoStateValues(std::vector<Action> la) : CFRInfoStateValues(la, 0) {}
@@ -66,6 +67,7 @@ struct CFRInfoStateValues {
 
   std::vector<Action> legal_actions;
   std::vector<double> cumulative_regrets;
+  std::vector<double> current_policy_unnormalized;
   std::vector<double> cumulative_policy;
   std::vector<double> current_policy;
 };
@@ -172,7 +174,7 @@ class CFRSolverBase {
   // will disable this feature. Otherwise it should be a [num_players] vector,
   // and if `policy_overrides[p] != nullptr` it will be used instead of the
   // current policy. This feature exists to support CFR-BR.
-  std::vector<double> ComputeCounterFactualRegret(
+  std::pair<std::vector<double>,std::vector<double>> ComputeCounterFactualRegret(
       const State& state, const absl::optional<int>& alternating_player,
       const std::vector<double>& reach_probabilities,
       const std::vector<const Policy*>* policy_overrides);
@@ -181,12 +183,13 @@ class CFRSolverBase {
   void ApplyRegretMatching();
 
  private:
-  std::vector<double> ComputeCounterFactualRegretForActionProbs(
+  std::pair<std::vector<double>,std::vector<double>> ComputeCounterFactualRegretForActionProbs(
       const State& state, const absl::optional<int>& alternating_player,
       const std::vector<double>& reach_probabilities, const int current_player,
       const std::vector<double>& info_state_policy,
       const std::vector<Action>& legal_actions,
       std::vector<double>* child_values_out,
+      std::vector<double>* predictions_out,
       const std::vector<const Policy*>* policy_overrides);
 
   void InitializeInfostateNodes(const State& state);
