@@ -229,14 +229,19 @@ static double CounterFactualReachProb(
 //      player, ending with the chance player.
 //
 // Returns:
-//   The value of the state for each player (excluding the chance player).
+//   - The value of the state for each player (excluding the chance player).
+//   - The predictions for each player
 std::pair<std::vector<double>, std::vector<double>>
   CFRSolverBase::ComputeCounterFactualRegret(
     const State& state, const absl::optional<int>& alternating_player,
     const std::vector<double>& reach_probabilities,
     const std::vector<const Policy*>* policy_overrides) {
   if (state.IsTerminal()) {
-    return {state.Returns(), state.Returns()};
+    auto chn_returns = state.Returns();
+    for (int i = 0; i < chn_returns.size(); ++i) {
+      chn_returns[i] *= reach_probabilities.at(chance_player_);
+    }
+    return {state.Returns(), chn_returns};
   }
   if (state.IsChanceNode()) {
     ActionsAndProbs actions_and_probs = state.ChanceOutcomes();
@@ -306,7 +311,7 @@ std::pair<std::vector<double>, std::vector<double>>
           is_vals.cumulative_regrets[aidx]
           // Comment following line to get original RM+
           // instead of Predictive RM+
-          + (predictions[aidx] - correction);
+          + cfr_reach_prob * (predictions[aidx] - correction);
 
       // Update average policy.
       if (linear_averaging_) {
@@ -355,6 +360,8 @@ void CFRSolverBase::GetInfoStatePolicyFromPolicy(
 // - action_probs: The action probabilities to use frp this state.
 // - child_values_out: optional output parameter which is filled with the child
 //           utilities for each action, for current_player.
+// - predictions_out: optional output parameter which is filled with the child
+//           predictions for each action, for current_player.
 // Returns:
 //   The value of the state for each player (excluding the chance player).
 std::pair<std::vector<double>, std::vector<double>>
