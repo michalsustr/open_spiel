@@ -67,7 +67,6 @@ class Bandit {
 class RegretMatching final : public Bandit {
   std::vector<double> cumulative_regrets_;
   std::vector<double> cumulative_strategy_;
-  std::vector<double> loss_;
   std::vector<double> current_strategy_;
  public:
   RegretMatching(size_t num_actions);
@@ -84,8 +83,8 @@ class RegretMatching final : public Bandit {
 class RegretMatchingPlus final : public Bandit {
   std::vector<double> cumulative_regrets_;
   std::vector<double> cumulative_strategy_;
-  std::vector<double> loss_;
   std::vector<double> current_strategy_;
+  size_t time_;
  public:
   RegretMatchingPlus(size_t num_actions);
   bool uses_average_strategy() override { return true; }

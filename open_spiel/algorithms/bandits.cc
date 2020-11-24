@@ -24,7 +24,6 @@ RegretMatching::RegretMatching(size_t num_actions)
     : Bandit(num_actions),
       cumulative_regrets_(num_actions, 0.),
       cumulative_strategy_(num_actions, 0.),
-      loss_(num_actions, 0.),
       current_strategy_(num_actions, 1. / num_actions) {}
 
 const std::vector<double>& RegretMatching::NextStrategy() {
@@ -43,6 +42,10 @@ const std::vector<double>& RegretMatching::NextStrategy() {
     for (int i = 0; i < num_actions_; ++i) {
       current_strategy_[i] = 1. / num_actions_;
     }
+  }
+
+  for (int i = 0; i < num_actions_; ++i) {
+    cumulative_strategy_[i] += current_strategy_[i];
   }
   return current_strategy_;
 }
@@ -74,9 +77,68 @@ std::vector<double> RegretMatching::AverageStrategy() {
   return strategy;
 }
 
-// TODO:
-
 // -- RegretMatchingPlus -------------------------------------------------------
+
+RegretMatchingPlus::RegretMatchingPlus(size_t num_actions)
+    : Bandit(num_actions),
+      cumulative_regrets_(num_actions, 0.),
+      cumulative_strategy_(num_actions, 0.),
+      current_strategy_(num_actions, 1. / num_actions),
+      time_(1) {}
+
+const std::vector<double>& RegretMatchingPlus::NextStrategy() {
+  double positive_regrets_sum = 0.;
+  for (double regret : cumulative_regrets_) {
+    positive_regrets_sum += regret > 0. ? regret : 0.;
+  }
+
+  if (positive_regrets_sum) {
+    for (int i = 0; i < num_actions_; ++i) {
+      const double regret = cumulative_regrets_[i];
+      current_strategy_[i] =
+          (regret > 0. ? regret : 0.) / positive_regrets_sum;
+    }
+  } else {
+    for (int i = 0; i < num_actions_; ++i) {
+      current_strategy_[i] = 1. / num_actions_;
+    }
+  }
+
+  for (int i = 0; i < num_actions_; ++i) {
+    cumulative_strategy_[i] += time_ * current_strategy_[i];
+  }
+  ++time_;
+  return current_strategy_;
+}
+void RegretMatchingPlus::ObserveLoss(absl::Span<const double> loss) {
+  SPIEL_DCHECK_EQ(loss.size(), num_actions_);
+  double v = 0.;
+  for (int i = 0; i < num_actions_; ++i) {
+    v += loss[i] * current_strategy_[i];
+  }
+  for (int i = 0; i < num_actions_; ++i) {
+    cumulative_regrets_[i] = std::fmax(0, cumulative_regrets_[i] + v - loss[i]);
+  }
+}
+std::vector<double> RegretMatchingPlus::AverageStrategy() {
+  std::vector<double> strategy;
+  strategy.reserve(num_actions_);
+  double normalization = 0.;
+  for (double action : cumulative_strategy_) normalization += action;
+
+  if (normalization) {
+    for (int i = 0; i < num_actions_; ++i) {
+      strategy.push_back(cumulative_strategy_[i] / normalization);
+    }
+  } else {
+    for (int i = 0; i < num_actions_; ++i) {
+      strategy.push_back(1. / num_actions_);
+    }
+  }
+  return strategy;
+}
+
+// TODO:
 // -- PredictiveRegretMatching -------------------------------------------------
 // -- PredictiveRegretMatchingPlus ---------------------------------------------
 // -- FollowTheLeader ----------------------------------------------------------
