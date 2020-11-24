@@ -42,8 +42,8 @@ class Bandit {
   virtual ~Bandit() = default;
   size_t num_actions() const { return num_actions_; }
 
-  virtual std::vector<double> NextStrategy() = 0;
-  virtual void ObserveLoss(std::vector<double> loss) = 0;
+  virtual const std::vector<double>& NextStrategy() = 0;
+  virtual void ObserveLoss(absl::Span<const double> loss) = 0;
 
   virtual bool uses_average_strategy() { return false; }
   virtual std::vector<double> AverageStrategy() {
@@ -51,12 +51,12 @@ class Bandit {
   }
 
   virtual bool uses_predictions() { return false; }
-  virtual void ObservePrediction(std::vector<double> prediction) {
+  virtual void ObservePrediction(absl::Span<const double> prediction) {
     SpielFatalError("ObservePrediction() is not implemented.");
   }
 
   virtual bool uses_context() { return false; }
-  virtual void ObserveContext(std::vector<double> context) {
+  virtual void ObserveContext(absl::Span<const double> context) {
     SpielFatalError("ObserveContext() is not implemented.");
   }
 };
@@ -73,8 +73,8 @@ class RegretMatching final : public Bandit {
   RegretMatching(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -82,12 +82,16 @@ class RegretMatching final : public Bandit {
 //     Oskari Tammelin
 //     https://arxiv.org/abs/1407.5042
 class RegretMatchingPlus final : public Bandit {
+  std::vector<double> cumulative_regrets_;
+  std::vector<double> cumulative_strategy_;
+  std::vector<double> loss_;
+  std::vector<double> current_strategy_;
  public:
   RegretMatchingPlus(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -101,8 +105,8 @@ class PredictiveRegretMatching final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -116,8 +120,8 @@ class PredictiveRegretMatchingPlus final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -130,8 +134,8 @@ class FollowTheLeader final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -146,8 +150,8 @@ class FollowTheRegularizedLeader final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -161,8 +165,8 @@ class PredictiveFollowTheRegularizedLeader final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -172,8 +176,8 @@ class OptimisticMirrorDescent final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -183,8 +187,8 @@ class PredictiveOptimisticMirrorDescent final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -194,8 +198,8 @@ class Exp3  final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -205,8 +209,8 @@ class Exp4  final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -218,8 +222,8 @@ class DiscountedRegretMatching final : public Bandit {
   DiscountedRegretMatching(size_t num_actions, double alpha, double beta, double gamma);
   bool uses_average_strategy() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -228,8 +232,8 @@ class Hedge final : public Bandit {
   Hedge(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -239,8 +243,8 @@ class OptimisticHedge final : public Bandit {
   OptimisticHedge(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -250,8 +254,8 @@ class UpperConfidenceBounds  final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 
@@ -261,8 +265,8 @@ class EpsGreedy  final : public Bandit {
   bool uses_average_strategy() override { return true; }
   bool uses_predictions() override { return true; }
 
-  std::vector<double> NextStrategy() override;
-  void ObserveLoss(std::vector<double> loss) override;
+  const std::vector<double>& NextStrategy() override;
+  void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
 };
 

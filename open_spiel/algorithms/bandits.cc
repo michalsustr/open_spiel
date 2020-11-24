@@ -27,7 +27,7 @@ RegretMatching::RegretMatching(size_t num_actions)
       loss_(num_actions, 0.),
       current_strategy_(num_actions, 1. / num_actions) {}
 
-std::vector<double> RegretMatching::NextStrategy() {
+const std::vector<double>& RegretMatching::NextStrategy() {
   double positive_regrets_sum = 0.;
   for (double regret : cumulative_regrets_) {
     positive_regrets_sum += regret > 0. ? regret : 0.;
@@ -46,7 +46,7 @@ std::vector<double> RegretMatching::NextStrategy() {
   }
   return current_strategy_;
 }
-void RegretMatching::ObserveLoss(std::vector<double> loss) {
+void RegretMatching::ObserveLoss(absl::Span<const double> loss) {
   SPIEL_DCHECK_EQ(loss.size(), num_actions_);
   double v = 0.;
   for (int i = 0; i < num_actions_; ++i) {
