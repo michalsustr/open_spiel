@@ -44,6 +44,7 @@ class Bandit {
 
   virtual const std::vector<double>& NextStrategy() = 0;
   virtual void ObserveLoss(absl::Span<const double> loss) = 0;
+  virtual void Reset() = 0;
 
   virtual bool uses_average_strategy() { return false; }
   virtual std::vector<double> AverageStrategy() {
@@ -75,6 +76,7 @@ class RegretMatching final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // [2] Solving Large Imperfect Information Games Using CFR+
@@ -92,6 +94,7 @@ class RegretMatchingPlus final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Faster Game Solving via Predictive Blackwell Approachability:
@@ -107,6 +110,7 @@ class PredictiveRegretMatching final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Faster Game Solving via Predictive Blackwell Approachability:
@@ -122,6 +126,7 @@ class PredictiveRegretMatchingPlus final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Follow-the-leader
@@ -136,6 +141,7 @@ class FollowTheLeader final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Follow-the-regularized-leader
@@ -152,6 +158,7 @@ class FollowTheRegularizedLeader final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Faster Game Solving via Predictive Blackwell Approachability:
@@ -167,6 +174,7 @@ class PredictiveFollowTheRegularizedLeader final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class OptimisticMirrorDescent final : public Bandit {
@@ -178,6 +186,7 @@ class OptimisticMirrorDescent final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class PredictiveOptimisticMirrorDescent final : public Bandit {
@@ -189,6 +198,7 @@ class PredictiveOptimisticMirrorDescent final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class Exp3  final : public Bandit {
@@ -200,6 +210,7 @@ class Exp3  final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class Exp4  final : public Bandit {
@@ -211,6 +222,7 @@ class Exp4  final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // Solving Imperfect-Information Gamesvia Discounted Regret Minimization
@@ -224,6 +236,7 @@ class DiscountedRegretMatching final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class Hedge final : public Bandit {
@@ -234,6 +247,7 @@ class Hedge final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 // https://arxiv.org/pdf/1507.00407.pdf
@@ -245,6 +259,7 @@ class OptimisticHedge final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class UpperConfidenceBounds  final : public Bandit {
@@ -256,6 +271,7 @@ class UpperConfidenceBounds  final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 class EpsGreedy  final : public Bandit {
@@ -267,6 +283,7 @@ class EpsGreedy  final : public Bandit {
   const std::vector<double>& NextStrategy() override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
+  void Reset() override;
 };
 
 

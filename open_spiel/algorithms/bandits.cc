@@ -49,6 +49,7 @@ const std::vector<double>& RegretMatching::NextStrategy() {
   }
   return current_strategy_;
 }
+
 void RegretMatching::ObserveLoss(absl::Span<const double> loss) {
   SPIEL_DCHECK_EQ(loss.size(), num_actions_);
   double v = 0.;
@@ -59,6 +60,7 @@ void RegretMatching::ObserveLoss(absl::Span<const double> loss) {
     cumulative_regrets_[i] += v - loss[i];
   }
 }
+
 std::vector<double> RegretMatching::AverageStrategy() {
   std::vector<double> strategy;
   strategy.reserve(num_actions_);
@@ -75,6 +77,13 @@ std::vector<double> RegretMatching::AverageStrategy() {
     }
   }
   return strategy;
+}
+
+void RegretMatching::Reset() {
+  std::fill(cumulative_regrets_.begin(), cumulative_regrets_.end(), 0.);
+  std::fill(cumulative_strategy_.begin(), cumulative_strategy_.end(), 0.);
+  std::fill(current_strategy_.begin(), current_strategy_.end(),
+            1. / num_actions_);
 }
 
 // -- RegretMatchingPlus -------------------------------------------------------
@@ -110,6 +119,7 @@ const std::vector<double>& RegretMatchingPlus::NextStrategy() {
   ++time_;
   return current_strategy_;
 }
+
 void RegretMatchingPlus::ObserveLoss(absl::Span<const double> loss) {
   SPIEL_DCHECK_EQ(loss.size(), num_actions_);
   double v = 0.;
@@ -120,6 +130,7 @@ void RegretMatchingPlus::ObserveLoss(absl::Span<const double> loss) {
     cumulative_regrets_[i] = std::fmax(0, cumulative_regrets_[i] + v - loss[i]);
   }
 }
+
 std::vector<double> RegretMatchingPlus::AverageStrategy() {
   std::vector<double> strategy;
   strategy.reserve(num_actions_);
@@ -136,6 +147,14 @@ std::vector<double> RegretMatchingPlus::AverageStrategy() {
     }
   }
   return strategy;
+}
+
+void RegretMatchingPlus::Reset() {
+  std::fill(cumulative_regrets_.begin(), cumulative_regrets_.end(), 0.);
+  std::fill(cumulative_strategy_.begin(), cumulative_strategy_.end(), 0.);
+  std::fill(current_strategy_.begin(), current_strategy_.end(),
+            1. / num_actions_);
+  time_ = 1;
 }
 
 // TODO:
