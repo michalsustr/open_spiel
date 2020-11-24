@@ -40,11 +40,14 @@ class Bandit {
     SPIEL_CHECK_GT(num_actions_, 0);
   }
   virtual ~Bandit() = default;
+
   size_t num_actions() const { return num_actions_; }
 
-  virtual const std::vector<double>& NextStrategy(double weight = 1.) = 0;
-  virtual void ObserveLoss(absl::Span<const double> loss) = 0;
   virtual void Reset() = 0;
+
+  virtual const std::vector<double>& NextStrategy(double weight = 1.) = 0;
+  virtual const std::vector<double>& current_strategy() const = 0;
+  virtual void ObserveLoss(absl::Span<const double> loss) = 0;
 
   virtual bool uses_average_strategy() { return false; }
   virtual std::vector<double> AverageStrategy() {
@@ -73,6 +76,9 @@ class RegretMatching final : public Bandit {
   RegretMatching(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
+  const std::vector<double>& current_strategy() const {
+    return current_strategy_;
+  }
   const std::vector<double>& NextStrategy(double weight = 1.) override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
@@ -91,6 +97,9 @@ class RegretMatchingPlus final : public Bandit {
   RegretMatchingPlus(size_t num_actions);
   bool uses_average_strategy() override { return true; }
 
+  const std::vector<double>& current_strategy() const {
+    return current_strategy_;
+  }
   const std::vector<double>& NextStrategy(double weight = 1.) override;
   void ObserveLoss(absl::Span<const double> loss) override;
   std::vector<double> AverageStrategy() override;
