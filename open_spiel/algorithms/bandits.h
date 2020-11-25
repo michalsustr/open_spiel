@@ -41,6 +41,12 @@
 // in the past, as well as the loss vectors `l_1 , ... , l_(t−1)` that were
 // observed in the past. No information about the future losses `l_t, l_(t+1),
 // ...` is available to the bandit at time `t`.
+//
+// An example of a computation of a loss function: if bandit algorithms are used
+// on a zero-sum normal-form game described by a payoff matrix `A` for the first
+// player, then the loss vector `l_t` for the first player is `-Ay` and `x^T A`
+// for the second player, where `x` and `y` are the strategies for the players
+// one and two respectively.
 
 namespace open_spiel {
 namespace algorithms {
